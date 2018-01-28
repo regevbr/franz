@@ -72,6 +72,7 @@
     "route-parser": "^0.0.5",
     "semver": "^5.4.1",
     "smoothscroll-polyfill": "^0.3.4",
+    "strformat": "^0.0.7",
     "tar": "^4.0.2",
     "uuid": "^3.0.1"
   },

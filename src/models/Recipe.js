@@ -1,5 +1,6 @@
 import emailParser from 'address-rfc2822';
 import semver from 'semver';
+import {getUrlParts} from '../helpers/url-helpers';
 
 export default class Recipe {
   id = '';
@@ -57,12 +58,16 @@ export default class Recipe {
     this.urlInputSuffix = data.config.urlInputSuffix || this.urlInputSuffix;
 
     this.message = data.config.message || this.message;
+
+    if (this.serviceURL && !this.hasTeamId && !this.hasCustomUrl) {
+      this.placeHolders = getUrlParts(this.serviceURL);
+    }
   }
 
   get author() {
     try {
       const addresses = emailParser.parse(this.rawAuthor);
-      return addresses.map(a => ({ email: a.address, name: a.phrase }));
+      return addresses.map(a => ({email: a.address, name: a.phrase}));
     } catch (err) {
       console.warn(`Not a valid author for ${this.name}`);
     }

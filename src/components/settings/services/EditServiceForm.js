@@ -14,6 +14,7 @@ import Input from '../../ui/Input';
 import Toggle from '../../ui/Toggle';
 import Button from '../../ui/Button';
 import ImageUpload from '../../ui/ImageUpload';
+import MultiInput from "../../ui/MultiInput";
 
 const messages = defineMessages({
   saveService: {
@@ -55,6 +56,10 @@ const messages = defineMessages({
   customUrlValidationError: {
     id: 'settings.service.form.customUrlValidationError',
     defaultMessage: '!!!Could not validate custom {name} server.',
+  },
+  placeholders: {
+    id: 'settings.service.form.placeholders',
+    defaultMessage: '!!!Placeholders',
   },
   customUrlPremiumInfo: {
     id: 'settings.service.form.customUrlPremiumInfo',
@@ -234,7 +239,7 @@ export default class EditServiceForm extends Component {
             <div className="service-name">
               <Input field={form.$('name')} focus />
             </div>
-            {(recipe.hasTeamId || recipe.hasCustomUrl) && (
+            {(recipe.hasTeamId || recipe.hasCustomUrl || recipe.placeHolders) && (
               <Tabs
                 active={activeTabIndex}
               >
@@ -249,6 +254,16 @@ export default class EditServiceForm extends Component {
                       field={form.$('team')}
                       prefix={recipe.urlInputPrefix}
                       suffix={recipe.urlInputSuffix}
+                    />
+                  </TabItem>
+                )}
+                {recipe.placeHolders && (
+                  <TabItem title={intl.formatMessage(messages.tabHosted)}>
+                    <MultiInput
+                      form={form}
+                      placeHolders={recipe.placeHolders.placeHolders}
+                      parts={recipe.placeHolders.parts}
+                      label="my-label"
                     />
                   </TabItem>
                 )}

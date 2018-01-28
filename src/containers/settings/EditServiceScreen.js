@@ -1,17 +1,16 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { inject, observer } from 'mobx-react';
-import { defineMessages, intlShape } from 'react-intl';
+import {inject, observer} from 'mobx-react';
+import {defineMessages, intlShape} from 'react-intl';
 
 import UserStore from '../../stores/UserStore';
 import RecipesStore from '../../stores/RecipesStore';
 import ServicesStore from '../../stores/ServicesStore';
 import Form from '../../lib/Form';
-import { gaPage } from '../../lib/analytics';
-
+import {gaPage} from '../../lib/analytics';
 import ServiceError from '../../components/settings/services/ServiceError';
 import EditServiceForm from '../../components/settings/services/EditServiceForm';
-import { required, url, oneRequired } from '../../helpers/validation-helpers';
+import {oneRequired, required, url} from '../../helpers/validation-helpers';
 
 const messages = defineMessages({
   name: {
@@ -63,22 +62,22 @@ export default class EditServiceScreen extends Component {
   }
 
   onSubmit(data) {
-    const { action } = this.props.router.params;
-    const { recipes, services } = this.props.stores;
-    const { createService, updateService } = this.props.actions.service;
+    const {action} = this.props.router.params;
+    const {recipes, services} = this.props.stores;
+    const {createService, updateService} = this.props.actions.service;
 
     const serviceData = data;
     serviceData.isMuted = !serviceData.isMuted;
 
     if (action === 'edit') {
-      updateService({ serviceId: services.activeSettings.id, serviceData });
+      updateService({serviceId: services.activeSettings.id, serviceData});
     } else {
-      createService({ recipeId: recipes.active.id, serviceData });
+      createService({recipeId: recipes.active.id, serviceData});
     }
   }
 
   prepareForm(recipe, service) {
-    const { intl } = this.context;
+    const {intl} = this.context;
     const config = {
       fields: {
         name: {
@@ -114,6 +113,20 @@ export default class EditServiceScreen extends Component {
         },
       },
     };
+
+    if (recipe.placeHolders) {
+      recipe.placeHolders.placeHolders.forEach((placeholder) => {
+        const placeHolderKey = (`placeholder_${placeholder}`);
+        const placeholderField = {};
+        placeholderField[placeHolderKey] = {
+          label: placeholder,
+          placeholder,
+          value: service[placeHolderKey],
+          validate: [required],
+        };
+        Object.assign(config.fields, placeholderField);
+      });
+    }
 
     if (recipe.hasTeamId) {
       Object.assign(config.fields, {
@@ -167,11 +180,11 @@ export default class EditServiceScreen extends Component {
   }
 
   deleteService() {
-    const { deleteService } = this.props.actions.service;
-    const { action } = this.props.router.params;
+    const {deleteService} = this.props.actions.service;
+    const {action} = this.props.router.params;
 
     if (action === 'edit') {
-      const { activeSettings: service } = this.props.stores.services;
+      const {activeSettings: service} = this.props.stores.services;
       deleteService({
         serviceId: service.id,
         redirect: '/settings/services',
@@ -180,8 +193,8 @@ export default class EditServiceScreen extends Component {
   }
 
   render() {
-    const { recipes, services, user } = this.props.stores;
-    const { action } = this.props.router.params;
+    const {recipes, services, user} = this.props.stores;
+    const {action} = this.props.router.params;
 
     let recipe;
     let service = {};
@@ -193,7 +206,7 @@ export default class EditServiceScreen extends Component {
       // TODO: render error message when recipe is `null`
       if (!recipe) {
         return (
-          <ServiceError />
+          <ServiceError/>
         );
       }
     } else {

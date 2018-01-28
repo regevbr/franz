@@ -1,6 +1,7 @@
-import { computed, observable, autorun } from 'mobx';
+import {autorun, computed, observable} from 'mobx';
 import path from 'path';
 import normalizeUrl from 'normalize-url';
+import formatUrl from '../helpers/url-helpers';
 
 export default class Service {
   id = '';
@@ -20,6 +21,7 @@ export default class Service {
   @observable isEnabled = true;
   @observable isMuted = false;
   @observable team = '';
+  @observable placeHolders = {};
   @observable customUrl = '';
   @observable isNotificationEnabled = true;
   @observable isBadgeEnabled = true;
@@ -67,6 +69,12 @@ export default class Service {
 
     this.recipe = recipe;
 
+    Object.keys(data).forEach((key) => {
+      if (key.startsWith('placeholder_')) {
+        this.placeHolders[key.replace('placeholder_', '')] = data[key];
+      }
+    });
+
     autorun(() => {
       if (!this.isEnabled) {
         this.webview = null;
@@ -81,7 +89,7 @@ export default class Service {
     if (this.recipe.hasCustomUrl && this.customUrl) {
       let url;
       try {
-        url = normalizeUrl(this.customUrl, { stripWWW: false });
+        url = normalizeUrl(this.customUrl, {stripWWW: false});
       } catch (err) {
         console.error(`Service (${this.recipe.name}): '${this.customUrl}' is not a valid Url.`);
       }
@@ -95,6 +103,10 @@ export default class Service {
 
     if (this.recipe.hasTeamId && this.team) {
       return this.recipe.serviceURL.replace('{teamId}', this.team);
+    }
+
+    if (this.recipe.placeHolders && Object.keys(this.placeHolders).length) {
+      return formatUrl(this.recipe.serviceURL, this.placeHolders);
     }
 
     return this.recipe.serviceURL;
