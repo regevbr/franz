@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { observer } from 'mobx-react';
-import { Link } from 'react-router';
-import { defineMessages, intlShape } from 'react-intl';
+import {observer} from 'mobx-react';
+import {Link} from 'react-router';
+import {defineMessages, intlShape} from 'react-intl';
 import normalizeUrl from 'normalize-url';
 
 import Form from '../../../lib/Form';
 import User from '../../../models/User';
 import Recipe from '../../../models/Recipe';
 import Service from '../../../models/Service';
-import Tabs, { TabItem } from '../../ui/Tabs';
+import Tabs, {TabItem} from '../../ui/Tabs';
 import Input from '../../ui/Input';
 import Toggle from '../../ui/Toggle';
 import Button from '../../ui/Button';
@@ -132,7 +132,7 @@ export default class EditServiceForm extends Component {
   }
 
   submit(e) {
-    const { recipe } = this.props;
+    const {recipe} = this.props;
 
     e.preventDefault();
     this.props.form.submit({
@@ -146,14 +146,24 @@ export default class EditServiceForm extends Component {
         }
 
         if (recipe.validateUrl && values.customUrl) {
-          this.setState({ isValidatingCustomUrl: true });
+          this.setState({isValidatingCustomUrl: true});
           try {
-            values.customUrl = normalizeUrl(values.customUrl, { stripWWW: false });
+            values.customUrl = normalizeUrl(values.customUrl, {stripWWW: false});
             isValid = await recipe.validateUrl(values.customUrl);
           } catch (err) {
             console.warn('ValidateURL', err);
             isValid = false;
           }
+        }
+
+        if (recipe.placeHolders && !values.customUrl) {
+          const placeholders = {};
+          Object.keys(values).forEach((key) => {
+            if (key.startsWith('placeholder_')) {
+              placeholders[key] = values[key];
+            }
+          });
+          values.customUrl = JSON.stringify(placeholders);
         }
 
         if (isValid) {
@@ -162,9 +172,10 @@ export default class EditServiceForm extends Component {
           form.invalidate('url-validation-error');
         }
 
-        this.setState({ isValidatingCustomUrl: false });
+        this.setState({isValidatingCustomUrl: false});
       },
-      onError: () => {},
+      onError: () => {
+      },
     });
   }
 
@@ -179,9 +190,9 @@ export default class EditServiceForm extends Component {
       isDeleting,
       onDelete,
     } = this.props;
-    const { intl } = this.context;
+    const {intl} = this.context;
 
-    const { isValidatingCustomUrl } = this.state;
+    const {isValidatingCustomUrl} = this.state;
 
     const deleteButton = isDeleting ? (
       <Button
@@ -221,7 +232,7 @@ export default class EditServiceForm extends Component {
               </Link>
             )}
           </span>
-          <span className="separator" />
+          <span className="separator"/>
           <span className="settings__header-item">
             {action === 'add' ? (
               intl.formatMessage(messages.addServiceHeadline, {
@@ -237,7 +248,7 @@ export default class EditServiceForm extends Component {
         <div className="settings__body">
           <form onSubmit={e => this.submit(e)} id="form">
             <div className="service-name">
-              <Input field={form.$('name')} focus />
+              <Input field={form.$('name')} focus/>
             </div>
             {(recipe.hasTeamId || recipe.hasCustomUrl || recipe.placeHolders) && (
               <Tabs
@@ -245,7 +256,7 @@ export default class EditServiceForm extends Component {
               >
                 {recipe.hasHostedOption && (
                   <TabItem title={recipe.name}>
-                    {intl.formatMessage(messages.useHostedService, { name: recipe.name })}
+                    {intl.formatMessage(messages.useHostedService, {name: recipe.name})}
                   </TabItem>
                 )}
                 {recipe.hasTeamId && (
@@ -271,10 +282,10 @@ export default class EditServiceForm extends Component {
                   <TabItem title={intl.formatMessage(messages.tabOnPremise)}>
                     {user.isPremium || recipe.author.find(a => a.email === user.email) ? (
                       <div>
-                        <Input field={form.$('customUrl')} />
+                        <Input field={form.$('customUrl')}/>
                         {form.error === 'url-validation-error' && (
                           <p className="franz-form__error">
-                            {intl.formatMessage(messages.customUrlValidationError, { name: recipe.name })}
+                            {intl.formatMessage(messages.customUrlValidationError, {name: recipe.name})}
                           </p>
                         )}
                       </div>
@@ -296,8 +307,8 @@ export default class EditServiceForm extends Component {
               <div className="settings__options">
                 <div className="settings__settings-group">
                   <h3>{intl.formatMessage(messages.headlineNotifications)}</h3>
-                  <Toggle field={form.$('isNotificationEnabled')} />
-                  <Toggle field={form.$('isMuted')} />
+                  <Toggle field={form.$('isNotificationEnabled')}/>
+                  <Toggle field={form.$('isMuted')}/>
                   <p className="settings__help">
                     {intl.formatMessage(messages.isMutedInfo)}
                   </p>
@@ -305,10 +316,10 @@ export default class EditServiceForm extends Component {
 
                 <div className="settings__settings-group">
                   <h3>{intl.formatMessage(messages.headlineBadges)}</h3>
-                  <Toggle field={form.$('isBadgeEnabled')} />
+                  <Toggle field={form.$('isBadgeEnabled')}/>
                   {recipe.hasIndirectMessages && form.$('isBadgeEnabled').value && (
                     <div>
-                      <Toggle field={form.$('isIndirectMessageBadgeEnabled')} />
+                      <Toggle field={form.$('isIndirectMessageBadgeEnabled')}/>
                       <p className="settings__help">
                         {intl.formatMessage(messages.indirectMessageInfo)}
                       </p>
@@ -318,7 +329,7 @@ export default class EditServiceForm extends Component {
 
                 <div className="settings__settings-group">
                   <h3>{intl.formatMessage(messages.headlineGeneral)}</h3>
-                  <Toggle field={form.$('isEnabled')} />
+                  <Toggle field={form.$('isEnabled')}/>
                 </div>
               </div>
               <div className="service-icon">
@@ -331,7 +342,7 @@ export default class EditServiceForm extends Component {
             </div>
             {recipe.message && (
               <p className="settings__message">
-                <span className="mdi mdi-information" />
+                <span className="mdi mdi-information"/>
                 {recipe.message}
               </p>
             )}

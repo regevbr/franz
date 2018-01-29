@@ -1,5 +1,5 @@
 const placeholderRegex = /((.*?)\$\{([^}\$]+)+\})+?([^\$]*)?/g;
-const strformat = require('strformat');
+const simpleReplace = require('simple-replace');
 
 export function getUrlParts(url) {
   let matches;
@@ -21,8 +21,6 @@ export function getUrlParts(url) {
 }
 
 export function formatUrl(url, placeHolders) {
-  return strformat(url, placeHolders);
+  return simpleReplace(url, placeHolders);
 }
-
-console.log(getUrlParts("https://${teamId}.freshdesk.com/helpdesk/tickets/view/${viewId}"));
 

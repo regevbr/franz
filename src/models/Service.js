@@ -1,7 +1,7 @@
 import {autorun, computed, observable} from 'mobx';
 import path from 'path';
 import normalizeUrl from 'normalize-url';
-import formatUrl from '../helpers/url-helpers';
+import {formatUrl} from '../helpers/url-helpers';
 
 export default class Service {
   id = '';
@@ -69,11 +69,14 @@ export default class Service {
 
     this.recipe = recipe;
 
-    Object.keys(data).forEach((key) => {
-      if (key.startsWith('placeholder_')) {
-        this.placeHolders[key.replace('placeholder_', '')] = data[key];
-      }
-    });
+    if (this.recipe.placeHolders && this.customUrl && !this.recipe.hasCustomUrl) {
+      this.placeHoldersClean = {};
+      const holders = JSON.parse(this.customUrl);
+      Object.keys(holders).forEach((key) => {
+        this.placeHoldersClean[key.replace('placeholder_', '')] = holders[key];
+        this[key] = holders[key];
+      });
+    }
 
     autorun(() => {
       if (!this.isEnabled) {
@@ -105,8 +108,8 @@ export default class Service {
       return this.recipe.serviceURL.replace('{teamId}', this.team);
     }
 
-    if (this.recipe.placeHolders && Object.keys(this.placeHolders).length) {
-      return formatUrl(this.recipe.serviceURL, this.placeHolders);
+    if (this.placeHoldersClean) {
+      return formatUrl(this.recipe.serviceURL, this.placeHoldersClean);
     }
 
     return this.recipe.serviceURL;
